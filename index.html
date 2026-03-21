@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Combustível</title>
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #121212;
+  color: #fff;
+}
+
+.container {
+  padding: 15px;
+}
+
+h1 {
+  text-align: center;
+}
+
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+input {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+.btn-danger {
+  background: #e53935;
+}
+
+.btn-danger:hover {
+  background: #c62828;
+}
+
+.card {
+  background: #1e1e1e;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.resultado {
+  background: #263238;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🚗 Combustível</h1>
+
+  <h3>Início da Viagem</h3>
+  <input type="number" id="inicio" placeholder="Hodômetro inicial (km)">
+
+  <h3>Abastecimento</h3>
+  <input type="number" id="litros" placeholder="Litros">
+  <input type="number" id="preco" placeholder="Preço por litro">
+  <button onclick="adicionar()">Adicionar Abastecimento</button>
+
+  <div id="lista"></div>
+
+  <h3>Final da Viagem</h3>
+  <input type="number" id="final" placeholder="Hodômetro final (km)">
+
+  <button onclick="calcular()">Finalizar Viagem</button>
+
+  <button class="btn-danger" onclick="novaViagem()">🗑️ Nova Viagem (Limpar Tudo)</button>
+
+  <div class="resultado" id="resultado"></div>
+</div>
+
+<script>
+let abastecimentos = [];
+
+function adicionar() {
+  let litros = parseFloat(document.getElementById("litros").value);
+  let preco = parseFloat(document.getElementById("preco").value);
+
+  if (!litros || !preco) {
+    alert("Preencha litros e preço");
+    return;
+  }
+
+  abastecimentos.push({ litros, preco });
+
+  atualizarLista();
+
+  document.getElementById("litros").value = "";
+  document.getElementById("preco").value = "";
+}
+
+function atualizarLista() {
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  abastecimentos.forEach((a, i) => {
+    lista.innerHTML += `
+      <div class="card">
+        ${i+1}º - ${a.litros}L | R$ ${a.preco}
+      </div>
+    `;
+  });
+}
+
+function calcular() {
+  let inicio = parseFloat(document.getElementById("inicio").value);
+  let final = parseFloat(document.getElementById("final").value);
+
+  if (!inicio || !final) {
+    alert("Preencha os hodômetros");
+    return;
+  }
+
+  let km = final - inicio;
+
+  let totalLitros = 0;
+  let totalValor = 0;
+
+  abastecimentos.forEach(a => {
+    totalLitros += a.litros;
+    totalValor += a.litros * a.preco;
+  });
+
+  let media = km / totalLitros;
+
+  document.getElementById("resultado").innerHTML = `
+    <h3>Resultado</h3>
+    🚗 KM rodados: ${km.toFixed(2)} km<br>
+    ⛽ Litros gastos: ${totalLitros.toFixed(2)} L<br>
+    💰 Total gasto: R$ ${totalValor.toFixed(2)}<br>
+    📊 Média: ${media.toFixed(2)} km/L
+  `;
+}
+
+function novaViagem() {
+  if (!confirm("Deseja apagar todos os dados da viagem?")) return;
+
+  abastecimentos = [];
+
+  document.getElementById("inicio").value = "";
+  document.getElementById("final").value = "";
+  document.getElementById("lista").innerHTML = "";
+  document.getElementById("resultado").innerHTML = "";
+}
+</script>
+
+</body>
+</html>
