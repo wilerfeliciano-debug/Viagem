@@ -1,4 +1,4 @@
-const CACHE_NAME = "combustivel-v1";
+const CACHE_NAME = "combustivel-v2";
 
 const FILES_TO_CACHE = [
   "./",
