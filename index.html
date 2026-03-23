@@ -103,6 +103,14 @@ button:hover {
 <script>
 let abastecimentos = [];
 
+// Carregar dados salvos
+if (localStorage.getItem("abastecimentos")) {
+  abastecimentos = JSON.parse(localStorage.getItem("abastecimentos"));
+  atualizarLista();
+}
+
+
+
 function adicionar() {
   let litros = parseFloat(document.getElementById("litros").value);
   let preco = parseFloat(document.getElementById("preco").value);
@@ -113,6 +121,7 @@ function adicionar() {
   }
 
   abastecimentos.push({ litros, preco });
+  localStorage.setItem("abastecimentos", JSON.stringify(abastecimentos));
 
   atualizarLista();
 
@@ -179,7 +188,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js")
     .then(() => console.log("Service Worker registrado"))
     .catch(err => console.log("Erro:", err));
-}
+
 </script>
 
 </body>
