@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -102,6 +102,8 @@ button:hover {
 
 <script>
 let abastecimentos = [];
+let hodometroInicial = 0;
+let hodometroFinal = 0;
 
 // Carregar dados salvos
 if (localStorage.getItem("abastecimentos")) {
@@ -109,7 +111,15 @@ if (localStorage.getItem("abastecimentos")) {
   atualizarLista();
 }
 
+if (localStorage.getItem("hodometroInicial")) {
+  hodometroInicial = parseFloat(localStorage.getItem("hodometroInicial"));
+  document.getElementById("inicio").value = hodometroInicial;
+}
 
+if (localStorage.getItem("hodometroFinal")) {
+  hodometroFinal = parseFloat(localStorage.getItem("hodometroFinal"));
+  document.getElementById("final").value = hodometroFinal;
+}
 
 function adicionar() {
   let litros = parseFloat(document.getElementById("litros").value);
@@ -136,11 +146,22 @@ function atualizarLista() {
   abastecimentos.forEach((a, i) => {
     lista.innerHTML += `
       <div class="card">
-        ${i+1}º - ${a.litros}L | R$ ${a.preco}
+        ${i+1}º - ${a.litros}L | R$ ${a.preco.toFixed(2)}
       </div>
     `;
   });
 }
+
+// Salvar hodômetros automaticamente
+document.getElementById("inicio").addEventListener("change", function() {
+  hodometroInicial = parseFloat(this.value);
+  localStorage.setItem("hodometroInicial", hodometroInicial);
+});
+
+document.getElementById("final").addEventListener("change", function() {
+  hodometroFinal = parseFloat(this.value);
+  localStorage.setItem("hodometroFinal", hodometroFinal);
+});
 
 function calcular() {
   let inicio = parseFloat(document.getElementById("inicio").value);
@@ -176,6 +197,12 @@ function novaViagem() {
   if (!confirm("Deseja apagar todos os dados da viagem?")) return;
 
   abastecimentos = [];
+  hodometroInicial = 0;
+  hodometroFinal = 0;
+
+  localStorage.removeItem("abastecimentos");
+  localStorage.removeItem("hodometroInicial");
+  localStorage.removeItem("hodometroFinal");
 
   document.getElementById("inicio").value = "";
   document.getElementById("final").value = "";
