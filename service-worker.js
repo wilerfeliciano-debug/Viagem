@@ -1,4 +1,4 @@
-const CACHE_NAME = "combustivel-v2";
+const CACHE_NAME = "combustivel-v3";
 
 const FILES_TO_CACHE = [
   "./",
@@ -7,43 +7,40 @@ const FILES_TO_CACHE = [
   "./icon.png"
 ];
 
-// INSTALAÇÃO (salva arquivos)
+// INSTALAÇÃO
 self.addEventListener("install", event => {
-  console.log("Service Worker instalado");
-
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
-
-  self.skipWaiting();
 });
 
-// ATIVAÇÃO (limpa cache antigo)
+// ATIVAÇÃO
 self.addEventListener("activate", event => {
-  console.log("Service Worker ativado");
-
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
+    caches.keys().then(keys =>
+      Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
-      );
-    })
+      )
+    )
   );
-
-  self.clients.claim();
 });
 
-// FETCH (funciona offline)
+// FETCH (melhor estratégia)
 self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(response => {
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      })
+      .catch(() => caches.match(event.request))
   );
 });
