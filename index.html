@@ -6,7 +6,6 @@
 
 <title>Controle de Combustível</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4CAF50">
 <link rel="icon" href="icon.png">
@@ -98,6 +97,20 @@ button:hover {
   <button class="btn-danger" onclick="novaViagem()">🗑️ Nova Viagem (Limpar Tudo)</button>
 
   <div class="resultado" id="resultado"></div>
+
+  <!-- NOVO BLOCO -->
+  <h3>Comparar Combustível</h3>
+
+  <input type="number" id="consumoEtanol" placeholder="Consumo Etanol (km/L)">
+  <input type="number" id="consumoGasolina" placeholder="Consumo Gasolina (km/L)">
+
+  <input type="number" id="precoEtanol" placeholder="Preço Etanol (R$)">
+  <input type="number" id="precoGasolina" placeholder="Preço Gasolina (R$)">
+
+  <button onclick="compararCombustivel()">Ver Melhor Opção</button>
+
+  <div class="resultado" id="resultadoCombustivel"></div>
+
 </div>
 
 <script>
@@ -105,20 +118,18 @@ let abastecimentos = [];
 let hodometroInicial = 0;
 let hodometroFinal = 0;
 
-// Carregar dados salvos
+// Carregar dados
 if (localStorage.getItem("abastecimentos")) {
   abastecimentos = JSON.parse(localStorage.getItem("abastecimentos"));
   atualizarLista();
 }
 
 if (localStorage.getItem("hodometroInicial")) {
-  hodometroInicial = parseFloat(localStorage.getItem("hodometroInicial"));
-  document.getElementById("inicio").value = hodometroInicial;
+  document.getElementById("inicio").value = localStorage.getItem("hodometroInicial");
 }
 
 if (localStorage.getItem("hodometroFinal")) {
-  hodometroFinal = parseFloat(localStorage.getItem("hodometroFinal"));
-  document.getElementById("final").value = hodometroFinal;
+  document.getElementById("final").value = localStorage.getItem("hodometroFinal");
 }
 
 function adicionar() {
@@ -152,15 +163,12 @@ function atualizarLista() {
   });
 }
 
-// Salvar hodômetros automaticamente
 document.getElementById("inicio").addEventListener("change", function() {
-  hodometroInicial = parseFloat(this.value);
-  localStorage.setItem("hodometroInicial", hodometroInicial);
+  localStorage.setItem("hodometroInicial", this.value);
 });
 
 document.getElementById("final").addEventListener("change", function() {
-  hodometroFinal = parseFloat(this.value);
-  localStorage.setItem("hodometroFinal", hodometroFinal);
+  localStorage.setItem("hodometroFinal", this.value);
 });
 
 function calcular() {
@@ -193,28 +201,51 @@ function calcular() {
   `;
 }
 
+// NOVA FUNÇÃO
+function compararCombustivel() {
+  let ce = parseFloat(document.getElementById("consumoEtanol").value);
+  let cg = parseFloat(document.getElementById("consumoGasolina").value);
+  let pe = parseFloat(document.getElementById("precoEtanol").value);
+  let pg = parseFloat(document.getElementById("precoGasolina").value);
+
+  if (!ce || !cg || !pe || !pg) {
+    alert("Preencha tudo");
+    return;
+  }
+
+  let custoE = pe / ce;
+  let custoG = pg / cg;
+
+  let melhor = custoE < custoG 
+    ? "👉 ETANOL compensa"
+    : custoG < custoE 
+    ? "👉 GASOLINA compensa"
+    : "👉 Tanto faz";
+
+  document.getElementById("resultadoCombustivel").innerHTML = `
+    <h3>Comparação</h3>
+    ⛽ Etanol: R$ ${custoE.toFixed(2)} / km<br>
+    ⛽ Gasolina: R$ ${custoG.toFixed(2)} / km<br><br>
+    <strong>${melhor}</strong>
+  `;
+}
+
 function novaViagem() {
   if (!confirm("Deseja apagar todos os dados da viagem?")) return;
 
   abastecimentos = [];
-  hodometroInicial = 0;
-  hodometroFinal = 0;
 
-  localStorage.removeItem("abastecimentos");
-  localStorage.removeItem("hodometroInicial");
-  localStorage.removeItem("hodometroFinal");
+  localStorage.clear();
 
   document.getElementById("inicio").value = "";
   document.getElementById("final").value = "";
   document.getElementById("lista").innerHTML = "";
   document.getElementById("resultado").innerHTML = "";
+  document.getElementById("resultadoCombustivel").innerHTML = "";
 }
 
-/* REGISTRO DO SERVICE WORKER */
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("Service Worker registrado"))
-    .catch(err => console.log("Erro:", err));
+  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
 
